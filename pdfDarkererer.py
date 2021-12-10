@@ -5,6 +5,7 @@ from PIL import Image, ImageEnhance
 from fpdf import FPDF
 import os
 from alive_progress import alive_bar
+from PIL import Image
 
 
 def invertLight(bgr):
@@ -182,6 +183,7 @@ height = int(210 * images[0].size[1] / images[0].size[0])
 pdf = FPDF(orientation='P', unit='mm', format=(210, height))
 
 if not testing:
+    thislist = []
 
     with alive_bar(len(images), bar='bubbles', spinner='dots_waves2') as bar:
 
@@ -209,17 +211,22 @@ if not testing:
             if smaller:
                 img = resizing(img, SCALE)
 
-            cv2.imwrite('img{}.png'.format(i), img)
 
-            pdf.add_page()
-            pdf.image('img{}.png'.format(i), x=0, y=0, w=210)
-            os.remove('img{}.png'.format(i))
+            # cv2.imwrite('img{}.png'.format(i), img)
+            new_img = Image.fromarray(img)
+            thislist.append(new_img)
+            # pdf.add_page()
+            # pdf.image(new_img, x=0, y=0, w=210)
+            # pdf.image('img{}.png'.format(i), x=0, y=0, w=210)
+            # os.remove('img{}.png'.format(i))
 
             # print("Page ", i+1, " of ", len(images), "- Percentage: ", (i+1) * 100 /len(images))
             bar()
 
     # Convert to PDF
+    out_filename = "cumv1.pdf"
+    thislist[0].save(out_filename, save_all=True, append_images=thislist[1:])
     print("Saving ", FILE_NEW, ' ...')
-    pdf.output(FILE_NEW, 'F')
+    #pdf.output(FILE_NEW, 'F')
 
 print("Done :D")
