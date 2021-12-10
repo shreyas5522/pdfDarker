@@ -89,140 +89,141 @@ def dotting(dots, img):
 
 ##########################################################################################
 # MAIN
-FILE_NAME = input('Enter file name: ')
-FILE_NEW = FILE_NAME[:-4] + 'v1.pdf'
-COURSE = FILE_NAME.split('_')[0].lower()
+class pdfDarkererer():
+    FILE_NAME = input('Enter file name: ')
+    FILE_NEW = FILE_NAME[:-4] + 'v1.pdf'
+    COURSE = FILE_NAME.split('_')[0].lower()
 
-# Open images
-images = convert_from_path(FILE_NAME)
-blackDots = convert_from_path('./Textures/Dots.pdf')
-blackDots = cv2.cvtColor(np.array(blackDots[0]), cv2.COLOR_RGB2BGR)
+    # Open images
+    images = convert_from_path(FILE_NAME)
+    blackDots = convert_from_path('./Textures/Dots.pdf')
+    blackDots = cv2.cvtColor(np.array(blackDots[0]), cv2.COLOR_RGB2BGR)
 
-# Params
-testing = False
-cropping = True
-blacking = True
-dotGrid = False
-corners = []
-rtVer, rtHor, rbVer, rbHor, lbVer, lbHor = 0, 0, 0, 0, 0, 0
+    # Params
+    testing = False
+    cropping = True
+    blacking = True
+    dotGrid = False
+    corners = []
+    rtVer, rtHor, rbVer, rbHor, lbVer, lbHor = 0, 0, 0, 0, 0, 0
 
-# Resizing
-smaller = False
-SCALE = 0.4
+    # Resizing
+    smaller = False
+    SCALE = 0.4
 
-# Crop variables
-LEFT = 0
-RIGHT = 0
-UP = 0
-DOWN = 0
+    # Crop variables
+    LEFT = 0
+    RIGHT = 0
+    UP = 0
+    DOWN = 0
 
-if COURSE == 'pe':
-    DOWN = 0.12
-elif COURSE == 'rss':
-    DOWN = 0.12
-elif COURSE == 'mcp':
-    DOWN = 0.12
-elif COURSE == 'ano':
-    DOWN = 0.12
-elif COURSE == 'nm':
-    DOWN = 0.0
-    UP = 0.08
-elif COURSE == 'srsp':
-    DOWN = 0.12
-elif COURSE == 'cv':
-    LEFT = 0.044
-    DOWN = 0.04
-    corners = ['rb', 'rt']
-    rbVer, rbHor = 0.04, 0.04
-    rtVer = 0.09
-    rtHor = 0.25
+    if COURSE == 'pe':
+        DOWN = 0.12
+    elif COURSE == 'rss':
+        DOWN = 0.12
+    elif COURSE == 'mcp':
+        DOWN = 0.12
+    elif COURSE == 'ano':
+        DOWN = 0.12
+    elif COURSE == 'nm':
+        DOWN = 0.0
+        UP = 0.08
+    elif COURSE == 'srsp':
+        DOWN = 0.12
+    elif COURSE == 'cv':
+        LEFT = 0.044
+        DOWN = 0.04
+        corners = ['rb', 'rt']
+        rbVer, rbHor = 0.04, 0.04
+        rtVer = 0.09
+        rtHor = 0.25
 
-# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+    # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
-# Testing
-if testing:
-    ori = images[6]
-    ori = cv2.cvtColor(np.array(ori), cv2.COLOR_RGB2BGR)
-    # ori = cv2.cvtColor(np.array(ori), cv2.COLOR_RGB2HLS)
-    ori = resizing(ori, SCALE)
-    blackTst = resizing(blackDots, SCALE)
+    # Testing
+    if testing:
+        ori = images[6]
+        ori = cv2.cvtColor(np.array(ori), cv2.COLOR_RGB2BGR)
+        # ori = cv2.cvtColor(np.array(ori), cv2.COLOR_RGB2HLS)
+        ori = resizing(ori, SCALE)
+        blackTst = resizing(blackDots, SCALE)
 
-    tst = ori
+        tst = ori
 
-    if cropping:
-        tst = crop(tst, LEFT, RIGHT, UP, DOWN)
+        if cropping:
+            tst = crop(tst, LEFT, RIGHT, UP, DOWN)
 
-    tst = invertLight(tst)
+        tst = invertLight(tst)
 
-    if 'rb' in corners:
-        tst = rightBottom(tst, rbVer, rbHor)
-    if 'rt' in corners:
-        tst = rightTop(tst, rtVer, rtHor)
-    if 'lb' in corners:
-        tst = leftBottom(tst, lbVer, lbHor)
+        if 'rb' in corners:
+            tst = rightBottom(tst, rbVer, rbHor)
+        if 'rt' in corners:
+            tst = rightTop(tst, rtVer, rtHor)
+        if 'lb' in corners:
+            tst = leftBottom(tst, lbVer, lbHor)
 
-    if blacking:
-        tst = black(tst)
+        if blacking:
+            tst = black(tst)
 
-    if dotGrid:
-        tst = dotting(blackTst, tst)
+        if dotGrid:
+            tst = dotting(blackTst, tst)
 
-    cv2.imshow('Original', ori)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        cv2.imshow('Original', ori)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-    cv2.imshow('Cropped', tst)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+        cv2.imshow('Cropped', tst)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-# Processing
-invImages = []
-# A4 = 210x297mm
-# pdf = FPDF()
-height = int(210 * images[0].size[1] / images[0].size[0])
-pdf = FPDF(orientation='P', unit='mm', format=(210, height))
+    # Processing
+    invImages = []
+    # A4 = 210x297mm
+    # pdf = FPDF()
+    height = int(210 * images[0].size[1] / images[0].size[0])
+    pdf = FPDF(orientation='P', unit='mm', format=(210, height))
 
-if not testing:
-    this_list = []
+    if not testing:
+        this_list = []
 
-    with alive_bar(len(images), bar='bubbles', spinner='dots_waves2') as bar:
+        with alive_bar(len(images), bar='bubbles', spinner='dots_waves2') as bar:
 
-        for i in range(len(images)):
-            img = cv2.cvtColor(np.array(images[i]), cv2.COLOR_RGB2BGR)
+            for i in range(len(images)):
+                img = cv2.cvtColor(np.array(images[i]), cv2.COLOR_RGB2BGR)
 
-            if cropping:
-                img = crop(img, LEFT, RIGHT, UP, DOWN)
+                if cropping:
+                    img = crop(img, LEFT, RIGHT, UP, DOWN)
 
-            img = invertLight(img)
+                img = invertLight(img)
 
-            if 'rb' in corners:
-                img = rightBottom(img, rbVer, rbHor)
-            if 'rt' in corners:
-                img = rightTop(img, rtVer, rtHor)
-            if 'lb' in corners:
-                img = leftBottom(img, lbVer, lbHor)
+                if 'rb' in corners:
+                    img = rightBottom(img, rbVer, rbHor)
+                if 'rt' in corners:
+                    img = rightTop(img, rtVer, rtHor)
+                if 'lb' in corners:
+                    img = leftBottom(img, lbVer, lbHor)
 
-            if blacking:
-                img = black(img)
+                if blacking:
+                    img = black(img)
 
-            if dotGrid:
-                img = dotting(blackDots, img)
+                if dotGrid:
+                    img = dotting(blackDots, img)
 
-            if smaller:
-                img = resizing(img, SCALE)
+                if smaller:
+                    img = resizing(img, SCALE)
 
-            new_img = Image.fromarray(img)
+                new_img = Image.fromarray(img)
 
-            # numbers from
-            # https://a-size.com/a4-paper-size/
-            new_img = new_img.resize((2480, height))
-            this_list.append(new_img)
+                # numbers from
+                # https://a-size.com/a4-paper-size/
+                new_img = new_img.resize((2480, height))
+                this_list.append(new_img)
 
-            # print("Page ", i+1, " of ", len(images), "- Percentage: ", (i+1) * 100 /len(images))
-            bar()
+                # print("Page ", i+1, " of ", len(images), "- Percentage: ", (i+1) * 100 /len(images))
+                bar()
 
-    # Convert to PDF
-    this_list[0].save(FILE_NEW, save_all=True, append_images=this_list[1:], resolution=300)
-    print("Saving ", FILE_NEW, ' ...')
+        # Convert to PDF
+        this_list[0].save(FILE_NEW, save_all=True, append_images=this_list[1:], resolution=300)
+        print("Saving ", FILE_NEW, ' ...')
 
-print("Done :D")
+    print("Done :D")
