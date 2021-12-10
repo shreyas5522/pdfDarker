@@ -222,7 +222,7 @@ if not testing:
 
     # Convert to PDF
     out_filename = "cumv1.pdf"
-    this_list[0].save(out_filename, save_all=True, append_images=this_list[1:])
+    this_list[0].save(out_filename, save_all=True, append_images=this_list[1:], quality=100)
     print("Saving ", FILE_NEW, ' ...')
 
 print("Done :D")
