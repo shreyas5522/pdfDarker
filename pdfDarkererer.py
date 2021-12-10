@@ -212,18 +212,17 @@ if not testing:
                 img = resizing(img, SCALE)
 
             new_img = Image.fromarray(img)
-            print(new_img.size)
+
             # numbers from
-            # https://stackoverflow.com/questions/27271138/python-pil-pillow-pad-image-to-desired-size-eg-a4
-            new_img = new_img.resize((2480, 3508))
+            # https://a-size.com/a4-paper-size/
+            new_img = new_img.resize((2480, height))
             this_list.append(new_img)
 
             # print("Page ", i+1, " of ", len(images), "- Percentage: ", (i+1) * 100 /len(images))
             bar()
 
     # Convert to PDF
-    out_filename = "cumv1.pdf"
-    this_list[0].save(out_filename, save_all=True, append_images=this_list[1:], resolution=300)
+    this_list[0].save(FILE_NEW, save_all=True, append_images=this_list[1:], resolution=300)
     print("Saving ", FILE_NEW, ' ...')
 
 print("Done :D")

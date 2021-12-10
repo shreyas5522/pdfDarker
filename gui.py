@@ -1,8 +1,33 @@
 import tkinter as tk
+from tkinter import filedialog as fd
+
+import pdfDarkererer
+import pdfDarkererer as dark
+from tkPDFViewer import tkPDFViewer as pdf
 
 
 def handle_open():
-    print("OPEN")
+    filetypes = (
+        ("PDF files", "*.pdf"),
+    )
+
+    filename = fd.askopenfilename(
+        title="Choose a pdf",
+        initialdir=".",
+        filetypes=filetypes
+    )
+
+    pdfDarkererer.out_filename
+    print(filename)
+
+    #viewer_original = pdf.ShowPdf()
+    #frm_original = viewer_original.pdf_view(
+     #   preview_frame,
+      #  pdf_location=r"b.pdf",
+       # width=100,
+        #height=100
+    #)
+    #frm_original.pack(side="left")
 
 
 def handle_save():
@@ -11,6 +36,14 @@ def handle_save():
 
 def handle_convert():
     print("CONVERT")
+    viewer_converted = pdf.ShowPdf()
+    frm_converted = viewer_converted.pdf_view(
+        preview_frame,
+        pdf_location=r"a.pdf",
+        width=100,
+        height=100
+    )
+    frm_converted.pack(side="left")
 
 
 window = tk.Tk()
