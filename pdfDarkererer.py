@@ -88,142 +88,63 @@ def dotting(dots, img):
 
 
 ##########################################################################################
-# MAIN
-class pdfDarkererer():
-    FILE_NAME = input('Enter file name: ')
-    FILE_NEW = FILE_NAME[:-4] + 'v1.pdf'
-    COURSE = FILE_NAME.split('_')[0].lower()
 
-    # Open images
-    images = convert_from_path(FILE_NAME)
-    blackDots = convert_from_path('./Textures/Dots.pdf')
-    blackDots = cv2.cvtColor(np.array(blackDots[0]), cv2.COLOR_RGB2BGR)
+class pdfDark:
+    def __init__(self):
+        self.file_name = ""
+        self.file_name_new = ""
+        self.course = ""
+        self.images = []
+        self.images_invert = []
 
-    # Params
-    testing = False
-    cropping = True
-    blacking = True
-    dotGrid = False
-    corners = []
-    rtVer, rtHor, rbVer, rbHor, lbVer, lbHor = 0, 0, 0, 0, 0, 0
+        # https://a-size.com/a4-paper-size/
+        # A4 = 210x297mm = 2480x3508px with 300ppi
+        self.width = 2480
+        self.height = 3508
+        self.resolution = 300
 
-    # Resizing
-    smaller = False
-    SCALE = 0.4
+    def open_file(self, filename):
+        print(filename)
+        self.file_name = filename
+        self.file_name_new = self.file_name[:-4] + 'v1.pdf'
+        self.course = self.file_name.split('_')[0].lower()
 
-    # Crop variables
-    LEFT = 0
-    RIGHT = 0
-    UP = 0
-    DOWN = 0
+        # Open images
+        print("test")
+        self.images = convert_from_path(filename)
+        print("test2")
 
-    if COURSE == 'pe':
-        DOWN = 0.12
-    elif COURSE == 'rss':
-        DOWN = 0.12
-    elif COURSE == 'mcp':
-        DOWN = 0.12
-    elif COURSE == 'ano':
-        DOWN = 0.12
-    elif COURSE == 'nm':
-        DOWN = 0.0
-        UP = 0.08
-    elif COURSE == 'srsp':
-        DOWN = 0.12
-    elif COURSE == 'cv':
-        LEFT = 0.044
-        DOWN = 0.04
-        corners = ['rb', 'rt']
-        rbVer, rbHor = 0.04, 0.04
-        rtVer = 0.09
-        rtHor = 0.25
+    def convert(self):
+        # Processing
+        self.height = int(self.width * self.images[0].size[1] / self.images[0].size[0])
 
-    # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+        for i in range(len(self.images)):
+            # new_img = self.invert_light(self.images[i]).resize((self.width, self.height))
+            # self.images_invert.append(new_img)
+            img = cv2.cvtColor(np.array(self.images[i]), cv2.COLOR_RGB2BGR)
+            new_img = invertLight(img)
+            self.images_invert.append(new_img)
 
-    # Testing
-    if testing:
-        ori = images[6]
-        ori = cv2.cvtColor(np.array(ori), cv2.COLOR_RGB2BGR)
-        # ori = cv2.cvtColor(np.array(ori), cv2.COLOR_RGB2HLS)
-        ori = resizing(ori, SCALE)
-        blackTst = resizing(blackDots, SCALE)
-
-        tst = ori
-
-        if cropping:
-            tst = crop(tst, LEFT, RIGHT, UP, DOWN)
-
-        tst = invertLight(tst)
-
-        if 'rb' in corners:
-            tst = rightBottom(tst, rbVer, rbHor)
-        if 'rt' in corners:
-            tst = rightTop(tst, rtVer, rtHor)
-        if 'lb' in corners:
-            tst = leftBottom(tst, lbVer, lbHor)
-
-        if blacking:
-            tst = black(tst)
-
-        if dotGrid:
-            tst = dotting(blackTst, tst)
-
-        cv2.imshow('Original', ori)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-        cv2.imshow('Cropped', tst)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-    # Processing
-    invImages = []
-    # A4 = 210x297mm
-    # pdf = FPDF()
-    height = int(210 * images[0].size[1] / images[0].size[0])
-    pdf = FPDF(orientation='P', unit='mm', format=(210, height))
-
-    if not testing:
-        this_list = []
-
-        with alive_bar(len(images), bar='bubbles', spinner='dots_waves2') as bar:
-
-            for i in range(len(images)):
-                img = cv2.cvtColor(np.array(images[i]), cv2.COLOR_RGB2BGR)
-
-                if cropping:
-                    img = crop(img, LEFT, RIGHT, UP, DOWN)
-
-                img = invertLight(img)
-
-                if 'rb' in corners:
-                    img = rightBottom(img, rbVer, rbHor)
-                if 'rt' in corners:
-                    img = rightTop(img, rtVer, rtHor)
-                if 'lb' in corners:
-                    img = leftBottom(img, lbVer, lbHor)
-
-                if blacking:
-                    img = black(img)
-
-                if dotGrid:
-                    img = dotting(blackDots, img)
-
-                if smaller:
-                    img = resizing(img, SCALE)
-
-                new_img = Image.fromarray(img)
-
-                # numbers from
-                # https://a-size.com/a4-paper-size/
-                new_img = new_img.resize((2480, height))
-                this_list.append(new_img)
-
-                # print("Page ", i+1, " of ", len(images), "- Percentage: ", (i+1) * 100 /len(images))
-                bar()
-
+    def save(self):
         # Convert to PDF
-        this_list[0].save(FILE_NEW, save_all=True, append_images=this_list[1:], resolution=300)
-        print("Saving ", FILE_NEW, ' ...')
+        self.images_invert[0].save(self.file_name_new,
+                                   save_all=True,
+                                   append_images=self.images_invert[1:],
+                                   resolution=self.resolution)
+        print("Saving ", self.file_name_new, ' ...')
 
-    print("Done :D")
+    def invert_light(self, img_rgb):
+        # Convert to hls
+        # May need to use np.array(img_rgb)
+        hls = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2HLS)
+
+        # Extract hls
+        h, l, s = cv2.split(hls)
+
+        # Merger
+        new_hls = cv2.merge([h, 255 - l, s])
+
+        # Return rgb image
+        new_rgb = cv2.cvtColor(new_hls, cv2.COLOR_HLS2RGB)
+
+        return Image.fromarray(new_rgb)
