@@ -1,50 +1,20 @@
 import tkinter as tk
 from tkinter import filedialog as fd
 
+import PIL
+from PIL import Image
 from tkPDFViewer import tkPDFViewer as pdf
 
-
-def handle_open():
-    filetypes = (
-        ("PDF files", "*.pdf"),
-    )
-
-    filename = fd.askopenfilename(
-        title="Choose a pdf",
-        initialdir=".",
-        filetypes=filetypes
-    )
-
-    print(filename)
-
-    # viewer_original = pdf.ShowPdf()
-    # frm_original = viewer_original.pdf_view(
-    #   self.preview_frame,
-    #  pdf_location=r"b.pdf",
-    # width=100,
-    # height=100
-    # )
-    # frm_original.pack(side="left")
+import pdfDarkererer
+import ipyplot
 
 
-def handle_save():
-    print("SAVE")
 
-
-def handle_convert(preview_frame):
-    print("CONVERT")
-    viewer_converted = pdf.ShowPdf()
-    frm_converted = viewer_converted.pdf_view(
-        preview_frame,
-        pdf_location=r"a.pdf",
-        width=100,
-        height=100
-    )
-    frm_converted.pack(side="left")
 
 
 class Gui:
     def __init__(self):
+        self.dark = pdfDarkererer.pdfDark()
         self.window = tk.Tk()
 
         self.button_frame = tk.Frame(master=self.window, width=200, height=100, bg="red")
@@ -61,7 +31,7 @@ class Gui:
             fg="white",
             borderwidth=2,
             relief=tk.RAISED,
-            command=handle_open
+            command=self.handle_open
         )
 
         self.btn_save = tk.Button(
@@ -72,7 +42,7 @@ class Gui:
             fg="white",
             borderwidth=2,
             relief=tk.RAISED,
-            command=handle_save
+            command=self.handle_save
         )
 
         self.btn_convert = tk.Button(
@@ -83,9 +53,8 @@ class Gui:
             fg="white",
             borderwidth=2,
             relief=tk.RAISED,
-            command=handle_convert
+            command=self.handle_convert
         )
-        # btn_open.bind("<ButtonRelease-1>", handle_click)
 
         self.button_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         self.preview_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
@@ -95,6 +64,44 @@ class Gui:
         self.btn_convert.grid(row=2, column=0, padx=5, pady=5)
 
         self.window.mainloop()
+
+    def handle_open(self):
+        filetypes = (
+            ("PDF files", "*.pdf"),
+        )
+
+        filename = fd.askopenfilename(
+            title="Choose a pdf",
+            initialdir=".",
+            filetypes=filetypes
+        )
+        self.dark.open_file(filename)
+        print(filename)
+
+        # viewer_original = pdf.ShowPdf()
+        # frm_original = viewer_original.pdf_view(
+        #     self.preview_frame,
+        #     pdf_location=filename,
+        #     width=100,
+        #     height=100
+        # )
+        # frm_original.pack(side="left")
+
+    def handle_save(self):
+        print("SAVE")
+        self.dark.save()
+
+    def handle_convert(self):
+        print("CONVERT")
+        self.dark.convert()
+        # viewer_converted = pdf.ShowPdf()
+        # frm_converted = viewer_converted.pdf_view(
+        #     self.preview_frame,
+        #     pdf_location=r"b.pdf",
+        #     width=100,
+        #     height=100
+        # )
+        # frm_converted.pack(side="left")
 
 
 if __name__ == "__main__":
