@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog as fd
 
 import PIL
@@ -22,6 +23,7 @@ class Gui:
 
         self.button_frame.columnconfigure(0, weight=1, minsize=200)
         self.button_frame.rowconfigure([0, 1, 2], weight=1, minsize=75)
+        self.progress_bar = ttk.Progressbar(self.button_frame, orient="horizontal", mode="indeterminate")
 
         self.btn_open = tk.Button(
             master=self.button_frame,
@@ -58,14 +60,17 @@ class Gui:
 
         self.button_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         self.preview_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
+        # self.progress_bar.pack(fill=tk.X, side=tk.BOTTOM)
 
         self.btn_open.grid(row=0, column=0, padx=5, pady=5)
         self.btn_save.grid(row=1, column=0, padx=5, pady=5)
         self.btn_convert.grid(row=2, column=0, padx=5, pady=5)
+        self.progress_bar.grid(row=3, column=0, padx=5, pady=5)
 
         self.window.mainloop()
 
     def handle_open(self):
+        self.progress_bar.start()
         filetypes = (
             ("PDF files", "*.pdf"),
         )
@@ -77,7 +82,7 @@ class Gui:
         )
         self.dark.open_file(filename)
         print(filename)
-
+        self.progress_bar.stop()
         # viewer_original = pdf.ShowPdf()
         # frm_original = viewer_original.pdf_view(
         #     self.preview_frame,
@@ -89,7 +94,16 @@ class Gui:
 
     def handle_save(self):
         print("SAVE")
-        self.dark.save()
+        filetypes = (
+            ("PDF files", "*.pdf"),
+        )
+
+        filename = fd.asksaveasfilename(
+            title="Save as...",
+            initialdir=".",
+            filetypes=filetypes
+        )
+        self.dark.save(filename)
 
     def handle_convert(self):
         print("CONVERT")

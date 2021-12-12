@@ -1,3 +1,6 @@
+import threading
+import tkinter.ttk
+
 from pdf2image import convert_from_path
 import cv2
 import numpy as np
@@ -105,6 +108,7 @@ class pdfDark:
 
     def open_file(self, filename):
         print(filename)
+
         self.file_name = filename
         self.file_name_new = self.file_name[:-4] + 'v1.pdf'
         self.course = self.file_name.split('_')[0].lower()
@@ -113,6 +117,10 @@ class pdfDark:
         print("test")
         self.images = convert_from_path(filename)
         print("test2")
+
+    def cum(self, filename):
+        print(filename)
+        self.images = convert_from_path(filename)
 
     def convert(self):
         # Processing
@@ -125,10 +133,10 @@ class pdfDark:
             new_img = Image.fromarray(invertLight(img))
             self.images_invert.append(new_img)
 
-    def save(self):
+    def save(self, filename):
         # Convert to PDF
-        self.images_invert[0].save(self.file_name_new, save_all=True, append_images=self.images_invert[1:], resolution=self.resolution)
-        print("Saving ", self.file_name_new, ' ...')
+        self.images_invert[0].save(filename, save_all=True, append_images=self.images_invert[1:], resolution=self.resolution)
+        print("Saving ", filename, ' ...')
 
     def invert_light(self, img_rgb):
         # Convert to hls
