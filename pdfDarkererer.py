@@ -122,15 +122,12 @@ class pdfDark:
             # new_img = self.invert_light(self.images[i]).resize((self.width, self.height))
             # self.images_invert.append(new_img)
             img = cv2.cvtColor(np.array(self.images[i]), cv2.COLOR_RGB2BGR)
-            new_img = invertLight(img)
+            new_img = Image.fromarray(invertLight(img))
             self.images_invert.append(new_img)
 
     def save(self):
         # Convert to PDF
-        self.images_invert[0].save(self.file_name_new,
-                                   save_all=True,
-                                   append_images=self.images_invert[1:],
-                                   resolution=self.resolution)
+        self.images_invert[0].save(self.file_name_new, save_all=True, append_images=self.images_invert[1:], resolution=self.resolution)
         print("Saving ", self.file_name_new, ' ...')
 
     def invert_light(self, img_rgb):
