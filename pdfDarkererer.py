@@ -118,8 +118,7 @@ class pdfDark:
         self.images = convert_from_path(filename)
         print("test2")
 
-    def cum(self, filename):
-        print(filename)
+    def conv(self, filename):
         self.images = convert_from_path(filename)
 
     def convert(self):
@@ -131,6 +130,7 @@ class pdfDark:
             # self.images_invert.append(new_img)
             img = cv2.cvtColor(np.array(self.images[i]), cv2.COLOR_RGB2BGR)
             new_img = Image.fromarray(invertLight(img))
+            new_img = new_img.resize((self.width, self.height))
             self.images_invert.append(new_img)
 
     def save(self, filename):

@@ -1,16 +1,14 @@
+import threading
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog as fd
 
 import PIL
-from PIL import Image
+from PIL import Image, ImageTk
 from tkPDFViewer import tkPDFViewer as pdf
 
 import pdfDarkererer
 import ipyplot
-
-
-
 
 
 class Gui:
@@ -24,6 +22,11 @@ class Gui:
         self.button_frame.columnconfigure(0, weight=1, minsize=200)
         self.button_frame.rowconfigure([0, 1, 2], weight=1, minsize=75)
         self.progress_bar = ttk.Progressbar(self.button_frame, orient="horizontal", mode="indeterminate")
+
+        self.scroll_bar = tk.Scrollbar(self.preview_frame, orient=tk.VERTICAL)
+        self.pdf = tk.Text(self.preview_frame, yscrollcommand=self.scroll_bar.set, bg="grey")
+        self.scroll_bar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scroll_bar.config(command=self.pdf.yview)
 
         self.btn_open = tk.Button(
             master=self.button_frame,
@@ -60,17 +63,20 @@ class Gui:
 
         self.button_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
         self.preview_frame.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
-        # self.progress_bar.pack(fill=tk.X, side=tk.BOTTOM)
+        self.pdf.pack(fill=tk.BOTH, expand=True)
 
         self.btn_open.grid(row=0, column=0, padx=5, pady=5)
         self.btn_save.grid(row=1, column=0, padx=5, pady=5)
         self.btn_convert.grid(row=2, column=0, padx=5, pady=5)
         self.progress_bar.grid(row=3, column=0, padx=5, pady=5)
 
+        self.pics = []
         self.window.mainloop()
 
-    def handle_open(self):
+    def progress(self):
         self.progress_bar.start()
+
+    def handle_open(self):
         filetypes = (
             ("PDF files", "*.pdf"),
         )
@@ -80,17 +86,19 @@ class Gui:
             initialdir=".",
             filetypes=filetypes
         )
+
+        self.progress_bar.start()
         self.dark.open_file(filename)
-        print(filename)
         self.progress_bar.stop()
-        # viewer_original = pdf.ShowPdf()
-        # frm_original = viewer_original.pdf_view(
-        #     self.preview_frame,
-        #     pdf_location=filename,
-        #     width=100,
-        #     height=100
-        # )
-        # frm_original.pack(side="left")
+
+        for i in range(len(self.dark.images)):
+            temp_pic = self.dark.images[i].resize((200, 200))
+            #temp_pic = temp_pic.resize((200, 200))
+            self.pics.append(ImageTk.PhotoImage(temp_pic))
+
+        for pic in self.pics:
+            self.pdf.image_create(tk.END, image=pic)
+            self.pdf.insert(tk.END, "\n\n")
 
     def handle_save(self):
         print("SAVE")
@@ -107,15 +115,17 @@ class Gui:
 
     def handle_convert(self):
         print("CONVERT")
+        self.pics = []
+        self.pdf.delete('1.0', tk.END)
         self.dark.convert()
-        # viewer_converted = pdf.ShowPdf()
-        # frm_converted = viewer_converted.pdf_view(
-        #     self.preview_frame,
-        #     pdf_location=r"b.pdf",
-        #     width=100,
-        #     height=100
-        # )
-        # frm_converted.pack(side="left")
+        for i in range(len(self.dark.images_invert)):
+            temp_pic = self.dark.images_invert[i].resize((200, 200))
+            #temp_pic = temp_pic.resize((200, 200))
+            self.pics.append(ImageTk.PhotoImage(temp_pic))
+
+        for pic in self.pics:
+            self.pdf.image_create(tk.END, image=pic)
+            self.pdf.insert(tk.END, "\n\n")
 
 
 if __name__ == "__main__":
